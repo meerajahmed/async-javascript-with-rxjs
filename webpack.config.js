@@ -6,6 +6,15 @@ const config = {
     path: path.resolve(__dirname, "dist"),
     filename: "[hash]bundle.js"
   },
+  module: {
+    loaders: [
+      {
+        test: /\.js$/,
+        loader: ['babel-loader'],
+        exclude: /node_module/
+      }
+    ]
+  },
   plugins: [
     new HtmlWebpackPlugin({
       template: "./src/index.html"

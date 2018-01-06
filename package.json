@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server",
+    "prebuild": "rimraf dist",
     "build": "webpack"
   },
   "repository": {
@@ -21,6 +22,9 @@
   },
   "homepage": "https://github.com/meerajahmed/async-javascript-with-rxjs#readme",
   "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.10.0"
   },
