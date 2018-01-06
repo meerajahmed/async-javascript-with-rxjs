@@ -1,11 +1,13 @@
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/fromEvent";
 import "rxjs/add/observable/interval";
-import "rxjs/add/operator/switchMap"
-import "rxjs/add/operator/switchMapTo"
+import "rxjs/add/operator/switchMap";
+import "rxjs/add/operator/switchMapTo";
+import "rxjs/add/operator/takeUntil";
 
 const startButton = document.querySelector('#start');
-//creates sequence if events over time
+const stopButton = document.querySelector("#stop");
+//creates sequence of events over time
 
 /*Observable.fromEvent(startButton, "click")
   .subscribe((event) => {
@@ -23,14 +25,27 @@ const startButton = document.querySelector('#start');
 // $ => Observable
 
 const startEvent$ = Observable.fromEvent(startButton, "click");
+const stopEvent$ = Observable.fromEvent(stopButton, "click");
 const interval$ = Observable.interval(1000);
-const startInterval$ = startEvent$
-  .switchMapTo(interval$);
+
+/*const subscription = interval$.subscribe((x)=> console.log(x));
+const stopEvent$ = Observable.fromEvent(stopButton, "click");
+stopEvent$.subscribe((event) => {
+  subscription.unsubscribe();
+});*/
+// use takeUntil operator to stop a stream instead of subscribing to new stopEvent$ and
+// then un subscribing inside subscribe function.
+
+const intervalThatStops$ = interval$
+  // stopping s stream with takUntill
+  .takeUntil(stopEvent$);
+//intervalThatStops$.subscribe((x) => console.log(x));
+
+startEvent$
+// starting a stream with switchMap
 // or use .switchMap((event)=>interval$); with arrow function
-
-
-startInterval$
-  .subscribe((x)=> console.log(x));
+  .switchMapTo(intervalThatStops$)
+  .subscribe((x)=>console.log(x));
 
 
 
