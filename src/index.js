@@ -4,6 +4,8 @@ import "rxjs/add/observable/interval";
 import "rxjs/add/operator/switchMap";
 import "rxjs/add/operator/switchMapTo";
 import "rxjs/add/operator/takeUntil";
+import "rxjs/add/operator/do";
+import "rxjs/add/operator/scan";
 
 const startButton = document.querySelector('#start');
 const stopButton = document.querySelector("#stop");
@@ -41,13 +43,27 @@ const intervalThatStops$ = interval$
   .takeUntil(stopEvent$);
 //intervalThatStops$.subscribe((x) => console.log(x));
 
-startEvent$
-// starting a stream with switchMap
+//startEvent$
+// starting a stream with switchMap and close previous stream
 // or use .switchMap((event)=>interval$); with arrow function
+  /*.switchMapTo(intervalThatStops$)
+  .subscribe((x)=>console.log(x));*/
+
+
+//******************* update data with scan *************************//
+/*let count = 0;
+startEvent$
   .switchMapTo(intervalThatStops$)
+  .subscribe((x)=>{
+    console.log(count++)
+  });*/
+// scan -  to to be able to continue stream count instead in instead of using global state
+startEvent$
+  .switchMapTo(intervalThatStops$)
+  // the proper way to gather and collect data - scan - similar to array reduce
+  .scan((acc)=>{
+    return { count: acc.count + 1}
+  }, {count: 0})
   .subscribe((x)=>console.log(x));
-
-
-
 
 
