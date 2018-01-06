@@ -6,6 +6,7 @@ import "rxjs/add/operator/switchMapTo";
 import "rxjs/add/operator/takeUntil";
 import "rxjs/add/operator/do";
 import "rxjs/add/operator/scan";
+import "rxjs/add/operator/startWith"
 
 const startButton = document.querySelector('#start');
 const stopButton = document.querySelector("#stop");
@@ -58,12 +59,25 @@ startEvent$
     console.log(count++)
   });*/
 // scan -  to to be able to continue stream count instead in instead of using global state
-startEvent$
+/*startEvent$
   .switchMapTo(intervalThatStops$)
   // the proper way to gather and collect data - scan - similar to array reduce
   .scan((acc)=>{
     return { count: acc.count + 1}
   }, {count: 0})
+  .subscribe((x)=>console.log(x));*/
+
+//***************** displaying initial data with startWith *****************//
+
+startEvent$
+  .switchMapTo(intervalThatStops$)
+  // if we want scan to fire one time, instead of waiting for startEvent$ to trigger the stream flow
+  .startWith({count: 0})
+  // the proper way to gather and collect data - scan - similar to array reduce
+  .scan((acc)=>{
+    return { count: acc.count + 1}
+  }) // startWith will set the initial value of scan acc
   .subscribe((x)=>console.log(x));
+
 
 
