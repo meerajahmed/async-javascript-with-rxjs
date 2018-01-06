@@ -1,0 +1,31 @@
+{
+  "name": "async-javascript-with-rxjs",
+  "version": "1.0.0",
+  "description": "A simple game app with rxjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/meerajahmed/async-javascript-with-rxjs.git"
+  },
+  "keywords": [
+    "rxjs"
+  ],
+  "author": "Meeraj Ahmed",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/meerajahmed/async-javascript-with-rxjs/issues"
+  },
+  "homepage": "https://github.com/meerajahmed/async-javascript-with-rxjs#readme",
+  "devDependencies": {
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.10.0"
+  },
+  "dependencies": {
+    "html-webpack-plugin": "^2.30.1",
+    "rxjs": "^5.5.6"
+  }
+}
