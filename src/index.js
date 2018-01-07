@@ -6,7 +6,8 @@ import "rxjs/add/operator/switchMapTo";
 import "rxjs/add/operator/takeUntil";
 import "rxjs/add/operator/do";
 import "rxjs/add/operator/scan";
-import "rxjs/add/operator/startWith"
+import "rxjs/add/operator/startWith";
+import "rxjs/add/operator/mapTo";
 
 const startButton = document.querySelector('#start');
 const stopButton = document.querySelector("#stop");
@@ -24,12 +25,14 @@ const stopButton = document.querySelector("#stop");
 
 // on button click i want to switch over to interval observer
 // every time i click on start button, the subscriber is going to receive events from
-// new interval and close the former one
+// new interval and clear the former stream
 // $ => Observable
 
 const startEvent$ = Observable.fromEvent(startButton, "click");
 const stopEvent$ = Observable.fromEvent(stopButton, "click");
 const interval$ = Observable.interval(1000);
+
+//**************** stopping a stream with takeUntil ********************//
 
 /*const subscription = interval$.subscribe((x)=> console.log(x));
 const stopEvent$ = Observable.fromEvent(stopButton, "click");
@@ -44,12 +47,13 @@ const intervalThatStops$ = interval$
   .takeUntil(stopEvent$);
 //intervalThatStops$.subscribe((x) => console.log(x));
 
-//startEvent$
-// starting a stream with switchMap and close previous stream
-// or use .switchMap((event)=>interval$); with arrow function
-  /*.switchMapTo(intervalThatStops$)
-  .subscribe((x)=>console.log(x));*/
+//*************** starting a new stream with switchMap ***************//
 
+//startEvent$
+// starting a stream with switchMap and clear previous stream
+// or use .switchMap((event)=>interval$); with arrow function
+/*.switchMapTo(intervalThatStops$)
+ .subscribe((x)=>console.log(x));*/
 
 //******************* update data with scan *************************//
 /*let count = 0;
@@ -69,15 +73,35 @@ startEvent$
 
 //***************** displaying initial data with startWith *****************//
 
-startEvent$
+/*startEvent$
   .switchMapTo(intervalThatStops$)
-  // if we want scan to fire one time, instead of waiting for startEvent$ to trigger the stream flow
+  // if we want scan pipeline to fire one time, instead of waiting for startEvent$ to trigger the stream flow
   .startWith({count: 0})
   // the proper way to gather and collect data - scan - similar to array reduce
   .scan((acc)=>{
     return { count: acc.count + 1}
   }) // startWith will set the initial value of scan acc
+  .subscribe((x)=>console.log(x));*/
+
+/******************** changing behaviour with mapTo **********************/
+
+// mapTo - make scan flexible enough to switch between different behavior on it own
+
+const data  = { count: 0};
+//Behaviour - 1
+const incFn = (acc) => ( {count: acc.count + 1} );
+
+//Behavior - 2
+const resetFn = (acc) => data;
+
+startEvent$
+  .switchMapTo(intervalThatStops$)
+  // map will pass currFn to scan
+  .mapTo(incFn)
+  // if we want scan pipeline to fire one time, instead of waiting for startEvent$ to trigger the stream flow
+  .startWith(data)
+  // the proper way to gather and collect data - scan - similar to array reduce
+  // without mapTo, scan w- currFn would just log th etick - 0,1,2,3...
+  //.scan((acc, curr)=> curr)
+  .scan((acc, currFn) => currFn(acc)) // startWith will set the initial value of scan acc
   .subscribe((x)=>console.log(x));
-
-
-
