@@ -8,9 +8,11 @@ import "rxjs/add/operator/do";
 import "rxjs/add/operator/scan";
 import "rxjs/add/operator/startWith";
 import "rxjs/add/operator/mapTo";
+import "rxjs/add/observable/merge";
 
 const startButton = document.querySelector('#start');
 const stopButton = document.querySelector("#stop");
+const resetButton = document.querySelector("#reset");
 //creates sequence of events over time
 
 /*Observable.fromEvent(startButton, "click")
@@ -30,6 +32,7 @@ const stopButton = document.querySelector("#stop");
 
 const startEvent$ = Observable.fromEvent(startButton, "click");
 const stopEvent$ = Observable.fromEvent(stopButton, "click");
+const resetEvent$ = Observable.fromEvent(resetButton, "click");
 const interval$ = Observable.interval(1000);
 
 //**************** stopping a stream with takeUntil ********************//
@@ -94,14 +97,31 @@ const incFn = (acc) => ( {count: acc.count + 1} );
 //Behavior - 2
 const resetFn = (acc) => data;
 
-startEvent$
+/*startEvent$
   .switchMapTo(intervalThatStops$)
   // map will pass currFn to scan
   .mapTo(incFn)
   // if we want scan pipeline to fire one time, instead of waiting for startEvent$ to trigger the stream flow
   .startWith(data)
   // the proper way to gather and collect data - scan - similar to array reduce
-  // without mapTo, scan w- currFn would just log th etick - 0,1,2,3...
+  // without mapTo, scan w- currFn would just log th tick - 0,1,2,3...
   //.scan((acc, curr)=> curr)
   .scan((acc, currFn) => currFn(acc)) // startWith will set the initial value of scan acc
-  .subscribe((x)=>console.log(x));
+  .subscribe((x)=>console.log(x));*/
+
+/********************* handling multiple stream | logical OR ****************************************/
+//  we want to pass interval stream when start button is click and reset stream when reset button is clicked
+// merge operator is like logical or, which passes events from either of the screams
+// mapTo will change the behavior of scan currFn
+// switchMap will start new stream and clear the triggering stream
+
+const incOrReset$ = Observable.merge(
+  intervalThatStops$.mapTo(incFn),
+  resetEvent$.mapTo(resetFn)
+);
+
+startEvent$.
+  switchMapTo(incOrReset$)
+    .startWith(data)
+    .scan((acc, curr) => curr(acc))
+    .subscribe((x) => console.log(x));
