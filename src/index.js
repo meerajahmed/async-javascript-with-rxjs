@@ -11,6 +11,8 @@ import "rxjs/add/operator/mapTo";
 import "rxjs/add/observable/merge";
 
 const startButton = document.querySelector('#start');
+const halfButton = document.querySelector('#half');
+const quarterButton = document.querySelector('#quarter');
 const stopButton = document.querySelector("#stop");
 const resetButton = document.querySelector("#reset");
 //creates sequence of events over time
@@ -31,6 +33,8 @@ const resetButton = document.querySelector("#reset");
 // $ => Observable
 
 const startEvent$ = Observable.fromEvent(startButton, "click");
+const halfEvent$ = Observable.fromEvent(halfButton, "click");
+const quarterEvent$ = Observable.fromEvent(quarterButton, "click");
 const stopEvent$ = Observable.fromEvent(stopButton, "click");
 const resetEvent$ = Observable.fromEvent(resetButton, "click");
 const interval$ = Observable.interval(1000);
@@ -120,8 +124,30 @@ const incOrReset$ = Observable.merge(
   resetEvent$.mapTo(resetFn)
 );
 
-startEvent$.
+/*startEvent$.
   switchMapTo(incOrReset$)
     .startWith(data)
     .scan((acc, curr) => curr(acc))
-    .subscribe((x) => console.log(x));
+    .subscribe((x) => console.log(x));*/
+
+/************************ implement new feature by composing stream *********************/
+
+const starters$ = Observable.merge(
+  // switchMap will get map to time as argument
+  startEvent$.mapTo(1000),
+  halfEvent$.mapTo(500),
+  quarterEvent$.mapTo(250)
+);
+
+const intervalActions = (time) => Observable.merge(
+  Observable.interval(time)
+    .takeUntil(stopEvent$)
+    .mapTo(incFn),
+  resetEvent$.mapTo(resetFn)
+);
+
+starters$
+  .switchMap(intervalActions)
+  .startWith(data)
+  .scan((acc, curr) => curr(acc))
+  .subscribe((x) => console.log(x));
