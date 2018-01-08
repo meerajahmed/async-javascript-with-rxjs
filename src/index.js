@@ -9,7 +9,8 @@ import "rxjs/add/operator/scan";
 import "rxjs/add/operator/startWith";
 import "rxjs/add/operator/mapTo";
 import "rxjs/add/observable/merge";
-import "rxjs/add/operator/map"
+import "rxjs/add/operator/map";
+import "rxjs/add/observable/combineLatest";
 
 const startButton = document.querySelector('#start');
 const halfButton = document.querySelector('#half');
@@ -135,7 +136,7 @@ const incOrReset$ = Observable.merge(
 
 /************************ implement new feature by composing stream *********************/
 
-/*const starters$ = Observable.merge(
+const starters$ = Observable.merge(
   // switchMap will get map to time as argument
   startEvent$.mapTo(1000),
   halfEvent$.mapTo(500),
@@ -149,7 +150,7 @@ const intervalActions = (time) => Observable.merge(
   resetEvent$.mapTo(resetFn)
 );
 
-starters$
+/*starters$
   .switchMap(intervalActions)
   .startWith(data)
   .scan((acc, curr) => curr(acc))
@@ -157,6 +158,16 @@ starters$
 
 /**************************** transform data with map *************************/
 
-input$
-  .map(event => event.target.value)
+const inputText$ = input$.map(event => event.target.value);
+
+/************************* combine streams with combineLatest **********************/
+
+const timer$ = starters$
+  .switchMap(intervalActions)
+  .startWith(data)
+  .scan((acc, curr) => curr(acc));
+
+// combine latest value of timer sream and input stream with combineLatest
+Observable.combineLatest(timer$, inputText$, (timer, input) => ({ count: timer.count, text: input }))
+  // the third argument in above function is equivalent to .map(array => ({count: array[0].count, text: array[1]}))
   .subscribe(x => console.log(x));
