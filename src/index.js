@@ -227,7 +227,7 @@ Observable.combineLatest(
   timer$.do((x) => console.log("Timer :",x)),
   inputText$.do((x) => console.log("Input :",x)),
   (timer, input) => ({count: timer.count, text: input}))
-  // do -> somthing that is going to happen outside the stream
+  // do -> something that is going to happen outside the stream
   .do((x) => console.log("combineLatest :",x))
   .takeWhile(data => data.count <= 3)
   //filters don't complete the stream. Filter just tells our streams which things to push through
