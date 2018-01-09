@@ -12,6 +12,7 @@ import "rxjs/add/observable/merge";
 import "rxjs/add/operator/map";
 import "rxjs/add/observable/combineLatest";
 import "rxjs/add/operator/filter";
+import "rxjs/add/operator/takeWhile";
 
 const startButton = document.querySelector('#start');
 const halfButton = document.querySelector('#half');
@@ -175,9 +176,25 @@ const timer$ = starters$
 
 /******************** adding conditional logic with filter ************************/
 
-Observable.combineLatest(
+/*Observable.combineLatest(
   timer$,
   inputText$,
   (timer, input) => ({ count: timer.count, text: input }))
   .filter((data) => data.count === parseInt(data.text))
-  .subscribe(x => console.log(x));
+  .subscribe(x => console.log(x));*/
+
+/******************* completing a stream with take while **********************/
+
+Observable.combineLatest(
+  timer$,
+  inputText$,
+  (timer, input) => ({count: timer.count, text: input}))
+  .takeWhile(data => data.count <= 3)
+  //filters don't complete the stream. Filter just tells our streams which things to push through
+  .filter((data) => data.count === parseInt(data.text))
+  .subscribe(
+    // next: called on every tick
+    x => console.log(x),
+    err => console.log(err),
+    () => console.log("Stream is complete | Game Over")
+  );
