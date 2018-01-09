@@ -11,6 +11,7 @@ import "rxjs/add/operator/mapTo";
 import "rxjs/add/observable/merge";
 import "rxjs/add/operator/map";
 import "rxjs/add/observable/combineLatest";
+import "rxjs/add/operator/filter";
 
 const startButton = document.querySelector('#start');
 const halfButton = document.querySelector('#half');
@@ -168,6 +169,15 @@ const timer$ = starters$
   .scan((acc, curr) => curr(acc));
 
 // combine latest value of timer sream and input stream with combineLatest
-Observable.combineLatest(timer$, inputText$, (timer, input) => ({ count: timer.count, text: input }))
+/*Observable.combineLatest(timer$, inputText$, (timer, input) => ({ count: timer.count, text: input }))
   // the third argument in above function is equivalent to .map(array => ({count: array[0].count, text: array[1]}))
+  .subscribe(x => console.log(x));*/
+
+/******************** adding conditional logic with filter ************************/
+
+Observable.combineLatest(
+  timer$,
+  inputText$,
+  (timer, input) => ({ count: timer.count, text: input }))
+  .filter((data) => data.count === parseInt(data.text))
   .subscribe(x => console.log(x));
