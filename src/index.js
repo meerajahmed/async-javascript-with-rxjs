@@ -13,6 +13,7 @@ import "rxjs/add/operator/map";
 import "rxjs/add/observable/combineLatest";
 import "rxjs/add/operator/filter";
 import "rxjs/add/operator/takeWhile";
+import "rxjs/add/operator/reduce";
 
 const startButton = document.querySelector('#start');
 const halfButton = document.querySelector('#half');
@@ -185,6 +186,7 @@ const timer$ = starters$
 
 /******************* completing a stream with take while **********************/
 
+/*
 Observable.combineLatest(
   timer$,
   inputText$,
@@ -197,4 +199,24 @@ Observable.combineLatest(
     x => console.log(x),
     err => console.log(err),
     () => console.log("Stream is complete | Game Over")
+  );*/
+
+/********************** Handling a complete stream with reduce *************************/
+Observable.combineLatest(
+  timer$,
+  inputText$,
+  (timer, input) => ({count: timer.count, text: input}))
+  .takeWhile(data => data.count <= 3)
+  //filters don't complete the stream. Filter just tells our streams which things to push through
+  .filter((data) => data.count === parseInt(data.text))
+  // calculate final score with reduce
+  // reduce collects data untill stream hits complete
+  .reduce((acc, curr) => acc + 1, 0 //start value) // acc  -> tick, data from filter is passed with curr
+  // reduce operator runs on complete -
+  // subscribe block is now waiting for complete event, final output
+  .subscribe(
+    // next: called on every tick
+    x => console.log(x),
+    err => console.log(err),
+    () => console.log("Game Over !!!")
   );
