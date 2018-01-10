@@ -10,10 +10,11 @@ import "rxjs/add/operator/startWith";
 import "rxjs/add/operator/mapTo";
 import "rxjs/add/observable/merge";
 import "rxjs/add/operator/map";
-import "rxjs/add/observable/combineLatest";
+import "rxjs/add/operator/combineLatest";
 import "rxjs/add/operator/filter";
 import "rxjs/add/operator/takeWhile";
 import "rxjs/add/operator/reduce";
+import "rxjs/add/operator/withLatestFrom";
 
 const startButton = document.querySelector('#start');
 const halfButton = document.querySelector('#half');
@@ -223,13 +224,43 @@ Observable.combineLatest(
   );*/
 
 /******************************* logging a stream with ******************************/
-Observable.combineLatest(
+/*Observable.combineLatest(
   timer$.do((x) => console.log("Timer :",x)),
   inputText$.do((x) => console.log("Input :",x)),
   (timer, input) => ({count: timer.count, text: input}))
   // do -> something that is going to happen outside the stream
   .do((x) => console.log("combineLatest :",x))
   .takeWhile(data => data.count <= 3)
+  //filters don't complete the stream. Filter just tells our streams which things to push through
+  .filter((data) => data.count === parseInt(data.text))
+  // calculate final score with reduce
+  // reduce collects data until stream hits complete
+  .reduce((acc, curr) => acc + 1, 0) // acc  -> tick, data from filter is passed with curr
+  // reduce operator runs on complete -
+  // subscribe block is now waiting for complete event, final output
+  .subscribe(
+    // next: called on every tick
+    x => console.log("Total score :", x),
+    err => console.log(err),
+    () => console.log("Game Over !!!")
+  );*/
+
+/****************************** competing stream withLatestfrom**************************************/
+
+
+timer$
+  .do((x) => console.log("Timer :",x))
+  .takeWhile(data => data.count <= 3)
+  // takeWhile will complete stream at tick 4
+  //.combineLatest(
+  //combineLatest waits for complete event from both timer and input.
+    // But input never completes
+  .withLatestFrom(
+    // timer will take latest value from input, but it wont wait for the the input to complete
+  inputText$.do((x) => console.log("Input :",x)),
+  (timer, input) => ({count: timer.count, text: input}))
+// do -> something that is going to happen outside the stream
+  .do((x) => console.log("combineLatest :",x))
   //filters don't complete the stream. Filter just tells our streams which things to push through
   .filter((data) => data.count === parseInt(data.text))
   // calculate final score with reduce
