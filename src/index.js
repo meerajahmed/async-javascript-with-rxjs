@@ -16,6 +16,7 @@ import "rxjs/add/operator/takeWhile";
 import "rxjs/add/operator/reduce";
 import "rxjs/add/operator/withLatestFrom";
 import "rxjs/add/operator/repeat";
+import "rxjs/add/operator/share";
 
 const startButton = document.querySelector('#start');
 const halfButton = document.querySelector('#half');
@@ -308,9 +309,9 @@ Observable.combineLatest(
     () => console.log("Game Over !!!") // after using repeat, we dont get complete event
   );*/
 
-/***************************** basic DOM renderiing with subscribe **********************************/
+/***************************** basic DOM rendering with subscribe **********************************/
 
-timer$
+/*timer$
   .do((x) => console.log("Timer :",x))
   .takeWhile(data => data.count <= 3)
   // takeWhile will complete stream at tick 4
@@ -323,6 +324,63 @@ timer$
     (timer, input) => ({count: timer.count, text: input}))
   // do -> something that is going to happen outside the stream
   .do((x) => console.log("withLatestFrom :",x))
+  //filters don't complete the stream. Filter just tells our streams which things to push through
+  .filter((data) => data.count === parseInt(data.text))
+  // calculate final score with reduce
+  // reduce collects data until stream hits complete
+  .reduce((acc, curr) => acc + 1, 0) // acc  -> tick, data from filter is passed with curr
+  // reduce operator runs on complete -
+  // subscribe block is now waiting for complete event, final output
+  .repeat() // usually used before subscribe block
+  // resubscribe on complete event from reduce but does not completes subscriber
+  .subscribe(
+    // next: called on every tick
+    x => {
+      score.innerHTML = x;
+      console.log("Total score :", x);
+    },
+    err => console.log(err),
+    () => console.log("Game Over !!!") // after using repeat, we dont get complete event
+  );*/
+
+/********************************* sharing stream with share ************************************/
+
+starters$ // stream of event that don't complete, so we don't have to apply repeat
+  .subscribe( () => {
+    input.value = "";
+    input.focus();
+    score.innerHTML = "";
+  });
+
+resetEvent$.subscribe(() => {
+  input.value = "";
+  input.focus();
+  score.innerHTML = "";
+});
+
+const runningGame = timer$
+  .do((x) => console.log("Timer :",x)) // side effect
+  .takeWhile(data => data.count <= 3)
+  // takeWhile will complete stream at tick 4
+  //.combineLatest(
+  //combineLatest waits for complete event from both timer and input.
+  // But input never completes
+  .withLatestFrom(
+    // timer will take latest value from input, but it wont wait for the the input to complete
+    inputText$.do((x) => console.log("Input :",x)),
+    (timer, input) => ({count: timer.count, text: input}))
+  // do -> something that is going to happen outside the stream
+  .do((x) => console.log("withLatestFrom :",x))
+  // this is the checkpoint before match
+  // by default each subscriber has separate execution context. So we see multiple logs for same tick
+  .share(); // share same running game execution to all subscribers
+
+// new side effect
+runningGame
+  .repeat() // we need to repeat on input value as well
+  .subscribe(() => input.value = "");
+
+runningGame
   //filters don't complete the stream. Filter just tells our streams which things to push through
   .filter((data) => data.count === parseInt(data.text))
   // calculate final score with reduce
