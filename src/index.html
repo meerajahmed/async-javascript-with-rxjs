@@ -4,16 +4,43 @@
     <meta charset="UTF-8">
     <title>RxJS</title>
 </head>
-<body>
-<h1>Aync javaScript with RxJS</h1>
+<p>
+<h1>Aync JavaScript with RxJS</h1>
+<div>
+    <button id="start">START</button>
+    <button id="half">HALF</button>
+    <button id="quarter">QUARTER</button>
+</div>
+<br>
+<div>
+    <button id="stop">STOP</button>
+    <button id="reset">RESET</button>
+</div>
+<br>
+<input id="input" type="text" />
+<br>
+<div>Score: <span id="score"></span></div>
+<hr>
+<h2>Reactive Principles</h2>
+<ul>
+    <li>Streams</li>
+    <li>Immutability</li>
+    <li>Reactivity</li>
+</ul>
+<hr>
 <p>A stream is a sequence of events over time</p>
 <pre>A stream can emit three kinds of events:
     values
-    an × error: e
-    a ◉ complete notification</pre>
-<pre>
-    After an × error: e or a ◉ complete notification, nothing else is emitted by the stream.
-    A listener can receive those three kinds of events. So, it can consume the values, handle an error and act upon completion of the subscribed stream.
-</pre>
-</body>
-</html>
+    an error
+    a complete notification</pre>
+<p>After an error or a complete notification, nothing else is emitted by the stream.</p>
+<hr>
+<p>Rx Operators never modifies the input stream. Instead it return a new streams. This principle is called
+    Immutability.</p>
+<hr>
+<p>Reactive programming is programing with streams. In reactive programming we react to event/data and stream updates.
+    This is the reactive principle.</p>
+<p>A listener can receive three kinds of events [ value, error, complete ]. So, it can consume the values, handle an
+    error and act upon completion of the subscribed stream.</p>
+<hr>
+<br>
